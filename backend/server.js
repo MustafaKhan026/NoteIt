@@ -1,31 +1,30 @@
-const express = require('express')
-const notes = require('./data/notes')
-const dotenv = require('dotenv')
+const express = require("express");
+const dotenv = require("dotenv");
+const connectDB = require("./config/config");
+const userRoutes = require("./routes/userRoutes");
+const noteRoutes = require("./routes/noteRoutes");
+const { notFound, errorHandler } = require("./middlewares/errorMiddleWare");
 
+const app = express();
+app.use(express.json());
 
-const app = express()
+dotenv.config();
+connectDB();
 
-dotenv.config()
+app.get("/", (req, res) => {
+  res.send("API active");
+});
 
+// app.get("/api/notes", (req, res) => {
+//   res.json(notes);
+// });
 
+app.use("/api/users", userRoutes);
+app.use("/api/notes", noteRoutes);
 
-app.get('/',(req,res)=>{
-    res.send('API active')
-})
+// Error handlers
+app.use(notFound);
+app.use(errorHandler);
 
-app.get('/api/notes',(req,res)=>{
-    res.json(notes)
-})
-
-
-app.get('/api/notes/:id',(req,res)=>{
-    const note = notes.find((n) => n._id === req.params.id)
-    try{
-        res.send(note)
-    }catch(err){
-        console.error(err);
-    }
-})
-
-const PORT = process.env.PORT || 5000
-app.listen(PORT, console.log('App running on port : ',PORT))
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, console.log("App running on port : ", PORT));
